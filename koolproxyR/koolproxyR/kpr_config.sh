@@ -9,15 +9,13 @@ KP_DIR=$SOFT_DIR/koolproxyR
 LOCK_FILE=/var/lock/koolproxy.lock
 # 一定要按照source.list的排列顺序/我就不按照顺序。。。啦啦啦啦啦啦
 SOURCE_LIST=$KP_DIR/data/source.list
-# fanboy全规则检查
-if [[ "$koolproxyR_fanboy_all_rules" == "1" ]]; then
-	dbus set koolproxyR_fanboy_rules=1
-	eval `dbus export koolproxyR_`
-fi
+# 关闭规则调试模式
+dbus set koolproxyR_debug_0=0
+
 
 write_user_txt(){
 	if [ -n "$koolproxyR_custom_rule" ]; then
-		echo $koolproxyR_custom_rule| base64_decode |sed 's/\\n/\n/g' > $KP_DIR/data/rules/user.txt
+		echo $koolproxyR_custom_rule | base64_decode | sed 's/\\n/\n/g' > $KP_DIR/data/rules/user.txt
 	fi
 }
 
@@ -28,23 +26,30 @@ load_rules(){
 		echo_date 加载【KPR主规则】
 		sed -i "s/0|easylistchina/1|easylistchina/g" $SOURCE_LIST
 	fi
+	if [[ "$koolproxyR_easylist_rules" == "2" ]]; then
+		echo_date 加载【koolproxy主规则】
+		sed -i "s/0|koolproxy/1|koolproxy/g" $SOURCE_LIST
+
+	fi
+	if [[ "$koolproxyR_easylist_rules" == "3" ]]; then
+		echo_date 加载【koolproxy主规则+每日规则】
+		sed -i "s/0|koolproxy/1|koolproxy/g" $SOURCE_LIST
+		sed -i "s/0|daily/1|daily/g" $SOURCE_LIST
+
+	fi
 	if [[ "$koolproxyR_replenish_rules" == "1" ]]; then
 		echo_date 加载【补充规则】
 		sed -i "s/0|yhosts.txt/1|yhosts.txt/g" $SOURCE_LIST
-	fi
-	if [ "$koolproxyR_easylist_rules" == "1" -a "$koolproxyR_video_rules" == "0" ]; then
-		echo_date 加载【KPR视频规则】
-		sed -i "s/0|kpr_video_list/1|kpr_video_list/g" $SOURCE_LIST
 	fi
 
 	if [[ "$koolproxyR_video_rules" == "1" ]]; then
 		echo_date 加载【KP视频规则】
 		sed -i "s/0|kp.dat/1|kp.dat/g" $SOURCE_LIST
 	fi
-	if [[ "$koolproxyR_fanboy_rules" == "1" ]]; then
+	if [[ "$koolproxyR_fanboy_rules" != "3" ]]; then
 		echo_date 加载【Fanboy规则】
 		sed -i "s/0|fanboy/1|fanboy/g" $SOURCE_LIST	
-	fi				
+	fi	
 }
 
 start_koolproxy(){
@@ -69,6 +74,7 @@ start_koolproxy(){
 		[ "$koolproxyR_base_mode" == "2" ] && echo_date 选择【黑名单模式】
 	fi
 	cd $KP_DIR && koolproxy -d --ttl 188 --ttlport 3001 --ipv6
+
 }
 
 stop_koolproxy(){
@@ -85,7 +91,7 @@ creat_start_up(){
 }
 
 write_nat_start(){
-	echo_date 添加nat-start触发事件...
+	echo_date  添加nat-start触发事件...
 	uci -q batch <<-EOT
 	  delete firewall.ks_koolproxy
 	  set firewall.ks_koolproxy=include
@@ -168,7 +174,7 @@ write_reboot_job(){
 
 remove_reboot_job(){
 	[ ! -f  "/etc/crontabs/root" ] && touch /etc/crontabs/root
-	jobexist=`cat /etc/crontabs/root|grep KoolProxyR_check_chain.sh`
+	jobexist=`cat /etc/crontabs/root|grep KoolProxyR`
 	KP_ENBALE=`dbus get koolproxyR_enable`
 
 	# kill crontab job
@@ -425,6 +431,7 @@ load_nat(){
 #	[ "$koolproxyR_mode" == "2" ] && iptables -t nat -I PREROUTING "$PR_NU" -p tcp -m set --match-set black_koolproxy dst -j KOOLPROXY
 }
 
+
 dns_takeover(){
 	ss_chromecast=`uci -q get shadowsocks.@global[0].dns_53`
 	ss_enable=`iptables -t nat -L PREROUTING | grep SHADOWSOCKS |wc -l`
@@ -505,7 +512,7 @@ my_rule_diy(){
 }
 
 new_kpr_version(){
-	url_version="https://dev.tencent.com/u/shaoxia1991/p/koolproxyr/git/raw/master/version"
+	url_version="https://shaoxia1991.coding.net/p/koolproxyr/d/koolproxyr/git/raw/master/version"
 	wget --no-check-certificate --timeout=8 -qO - $url_version > /tmp/version
 	koolproxyR_installing_version=`cat /tmp/version  | sed -n '1p'`
 	echo_date 获取到最新在线版本为：$koolproxyR_installing_version！

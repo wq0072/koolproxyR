@@ -75,15 +75,16 @@ $.ajax({
 					scrollbar: false,
 					id: 'update_koolproxyR',
 					// 鬼知道这个id 什么意思！！
-					btn: ['火速更新', '更新个毛'],
+					btn: ['更新', '关闭'],
 					btnAlign: 'c',
 					moveType: 1,
 					content: '<div style="padding: 50px; line-height: 22px; background-color: #393D49; color: #fff; font-weight: 300;">\
 								<b>KoolProxyR更新提醒！</b><br><br><br>\
 								如你所见，KoolProxyR又双叒叕更新了！<br>\
 								KoolProxyR更新至' + data_version[0] + '~<br><br>\
-								● 更新日志详情<a style="color:#33CCCC" target="_blank" href="https://dev.tencent.com/u/shaoxia1991/p/koolproxyr/git/raw/master/Changelog.txt">请戳我了解~</a><br>\
-								● 赶快更新吧，少年！<br><br>\
+								● 更新日志详情<a style="color:#33CCCC" target="_blank" href="https://shaoxia1991.coding.net/p/koolproxyr/d/koolproxyr/git/raw/master/Changelog.txt">请戳我了解~</a><br><br>\
+								● 长期召集懂abp去广告规则的热心人士<br>\
+								● 长期召集懂反编译或者擅长抓包的热心人士<br><br>\
 								我们的征途是星辰大海 ^_^</div>',
 					success: function(layero) {
 						var btn = layero.find('.layui-layer-btn');
@@ -370,7 +371,8 @@ function update_KPR(){
 
 }
 function issues_KP(){
-	window.open("https://github.com/user1121114685/koolproxyR/issues/new/choose");
+	window.open("https://www.wjx.cn/jq/42669897.aspx");
+	
 }
 
 function update_KPR_rule(){
@@ -440,20 +442,7 @@ function toggleVisibility(whichone) {
 }
 
 function save(){
-	var KP = document.getElementById('_koolproxyR_enable').checked==false;			
-	var R1 = document.getElementById('_koolproxyR_replenish_rules').checked==false;
-	var R2 = document.getElementById('_koolproxyR_easylist_rules').checked==false;
-	var R3 = document.getElementById('_koolproxyR_video_rules').checked==false;
-	var R4 = document.getElementById('_koolproxyR_fanboy_rules').checked==false;
 
-	if (KP){
-		
-	// }else if(R1 && R2 && R3 && R4 && R5){
-	}else if(R1 && R2 && R3 && R4){
-
-		alert("请到【规则管理】勾选规则！");
-		return false;
-	}
 	verifyFields();
 	// collect basic data
 	dbus.koolproxyR_enable = E('_koolproxyR_enable').checked ? '1':'0';
@@ -461,10 +450,10 @@ function save(){
 	dbus.koolproxyR_base_mode = E('_koolproxyR_base_mode').value;			
 	dbus.koolproxyR_mode = E('_koolproxyR_mode').value;
 	dbus.koolproxyR_replenish_rules = E("_koolproxyR_replenish_rules").checked ? "1" : "0";
-	dbus.koolproxyR_easylist_rules = E("_koolproxyR_easylist_rules").checked ? "1" : "0";
+	dbus.koolproxyR_easylist_rules = E("_koolproxyR_easylist_rules").value;
 	dbus.koolproxyR_video_rules = E("_koolproxyR_video_rules").checked ? "1" : "0";
-	dbus.koolproxyR_fanboy_rules = E("_koolproxyR_fanboy_rules").checked ? "1" : "0";
-	dbus.koolproxyR_fanboy_all_rules = E("_koolproxyR_fanboy_all_rules").checked ? "1" : "0";
+	dbus.koolproxyR_fanboy_rules = E("_koolproxyR_fanboy_rules").value;
+
 	// 更新规则
 	dbus.koolproxyR_basic_easylist_update = E("_koolproxyR_basic_easylist_update").checked ? "1" : "0";
 	dbus.koolproxyR_basic_replenish_update = E("_koolproxyR_basic_replenish_update").checked ? "1" : "0";
@@ -742,11 +731,9 @@ function restore_cert(){
 }
 
 function update_rules_now(arg){
-	if (arg == 5){
-		shellscript = 'KoolProxyR_rule_update.sh';
-	}
+	var	shellscript = 'KoolProxyR_rule_update.sh';
 	var id1 = parseInt(Math.random() * 100000000);
-	var postData1 = {"id": id1, "method": shellscript, "params":[], "fields": ""};
+	var postData1 = {"id": id1, "method": shellscript, "params":[arg], "fields": ""};
 	$.ajax({
 		type: "POST",
 		url: "/_api/",
@@ -775,7 +762,7 @@ function set_version() {
 <div class="heading">
 <span id="_koolproxyR_version"></span>
 <a href="#/soft-center.asp" class="btn" style="float:right;border-radius:3px;margin-right:5px;margin-top:0px;">返回</a>
-<a href="https://dev.tencent.com/u/shaoxia1991/p/koolproxyr/git/raw/master/Changelog.txt" target="_blank" class="btn btn-primary" style="float:right;border-radius:3px;margin-right:5px;margin-top:0px;">更新日志</a>
+<a href="https://shaoxia1991.coding.net/p/koolproxyr/d/koolproxyr/git/raw/master/Changelog.txt" target="_blank" class="btn btn-primary" style="float:right;border-radius:3px;margin-right:5px;margin-top:0px;">更新日志</a>
 <!-- <a href="#/Module_koolproxyR_simple.asp" target="_blank" class="btn btn-primary" style="float:right;border-radius:3px;margin-right:5px;margin-top:0px;">简化版</a> -->
 </div>
 <div class="content"><span class="col"  style="line-height:30px;width:700px">
@@ -811,7 +798,7 @@ function set_version() {
 <li><a href="javascript:void(0);" onclick="tabSelect('app4');" id="app4-server1-zdy-tab"><i class="icon-hammer"></i> 自定义规则</a></li>
 <li><a href="javascript:void(0);" onclick="tabSelect('app5');" id="app5-server1-zsgl-tab"><i class="icon-lock"></i> 证书管理</a></li>
 <li><a href="javascript:void(0);" onclick="tabSelect('app6');" id="app6-server1-gzgl-tab"><i class="icon-cmd"></i> 规则状态</a></li>
-<li><a href="javascript:void(0);" onclick="tabSelect('app7');" id="app7-server1-rzz-tap"><i class="icon-wake"></i> 附加設置</a></li>
+<li><a href="javascript:void(0);" onclick="tabSelect('app7');" id="app7-server1-rzz-tap"><i class="icon-wake"></i> 附加设置</a></li>
 <li><a href="javascript:void(0);" onclick="tabSelect('app8');" id="app8-server1-rz-tab"><i class="icon-info"></i> 日志信息</a></li>
 </ul>
 <div class="box boxr1" style="margin-top: 0px;">
@@ -820,7 +807,7 @@ function set_version() {
 	<script type="text/javascript">
 		$('#identification').forms([
 			{ title: '开启进阶模式', name:'koolproxyR_mode_enable',type:'select',options:[['0','关闭'],['1','开启']],value: dbus.koolproxyR_mode_enable || "0",suffix: '<font color="#FF0000">【进阶模式】&nbsp;&nbsp;提供更多设置选项</font>' },
-			{ title: '默认过滤模式', name:'koolproxyR_base_mode',type:'select',options:[['0','不过滤'],['1','HTTP过滤模式'],['2','黑名单模式']],value: dbus.koolproxyR_base_mode || "1",suffix: '<font color="#FF0000">【开启进阶模式】&nbsp;&nbsp;获得更多选项！</font>' },
+			{ title: '全局默认过滤模式', name:'koolproxyR_base_mode',type:'select',options:[['0','不过滤'],['1','HTTP过滤模式'],['2','黑名单模式']],value: dbus.koolproxyR_base_mode || "1",suffix: '<font color="#FF0000">【开启进阶模式】&nbsp;&nbsp;获得更多选项！</font>' },
 			{ title: '进阶默认过滤模式', name:'koolproxyR_mode',type:'select',options:[['0','不过滤'],['1','HTTP过滤模式'],['2','HTTP/HTTPS双过滤模式'],['3','黑名单模式'],['4','HTTP/HTTPS双黑名单模式']],value: dbus.koolproxyR_mode || "1",suffix: '<font color="#FF0000">一般开启HTTP过滤模式即可，去视频广告请在&nbsp;&nbsp;访问控制中给设备指定【HTTP/HTTPS双过滤模式】</font>' },
 			{ title: '证书下载', suffix: ' <button id="_download_cert" onclick="download_cert();"style="border-radius: 20px"  class="btn btn-danger">证书下载</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="https_KP();" style="border-radius: 20px" class="btn btn-success">相关教程</button>' },
 			{ title: '交流渠道', suffix: ' <button onclick="issues_KP();" style="border-radius: 20px" class="btn btn-danger">建议反馈</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="find_telegram();"style="border-radius: 20px"  class="btn btn-danger">加入TG群</button>'  },
@@ -848,7 +835,15 @@ function set_version() {
 			<div class="col-sm-10">
 				<ul style="margin-left: 30px;">
 					<li><font color="#FF6347"> 问： </font>KoolProxyR的R是日的意思吗？</li>
-					<li><font color="#1E90FF"> 答： </font>是的，日死所有广告。</li>			
+					<li><font color="#1E90FF"> 答： </font>是的，日死所有广告。</li>	
+					<br><hr>	
+					<li><font color="#FF6347"> &nbsp;&nbsp;&nbsp;&nbsp;一个新手的标准流程</font></li>
+					<li><font color="#1E90FF"> 1， </font>在【基本设置】中默认HTTP过滤模式，此模式表示除【访问控制】以外的机子走的过滤模式。</li>			
+					<li><font color="#1E90FF"> 2， </font>在【规则状态】中勾选合适的规则。</li>			
+					<li><font color="#1E90FF"> 3， </font>给【HTTP/HTTPS双过滤模式】的机子正确安装证书。（详情请完整阅读本页）</li>			
+					<li><font color="#1E90FF"> 4， </font>在【访问控制】中指定【HTTP/HTTPS双过滤模式】过滤的设备。</li>			
+					<li><font color="#1E90FF"> 5， </font>善于使用【附加设置】--【开启-AD调试模式 】排除误杀情况，如果比较严重，欢迎提交规则，或者TG群反馈。</li>	
+					<li><font color="#1E90FF"> 6， </font>如果您是大佬，可以自行DIY你需要的所有元素，并欢迎提交在github提交Pull requests。</li>					
 					<br><hr>
 					<li><font color="#FF6347"> 问： </font>这些模式有什么区别？</li>
 					<li><font color="#1E90FF"> 答： </font>HTTP过滤模式，只过滤80端口，HTTP/HTTPS过滤80,443端口，全端口模式过滤所有端口，包含80，443。黑名单模式只过滤黑名单内的域名所以不建议使用。</li>			
@@ -861,9 +856,9 @@ function set_version() {
 					<br><hr>
 					<li><font color="#FF6347"> 问： </font>我想自动升级KoolProxyR版本可以吗？</li>
 					<li><font color="#1E90FF"> 答： </font>在【系统】--【计划任务】的末尾回车添加上下面这行的代码保存即可。</li>
-					<li>0 4 * * * /koolshare/scripts/KoolProxyR_update_now.sh</li>
+					<li>0 4 * * * /koolshare/scripts/KoolProxyR_update_now.sh update_kpr</li>
 					<br><hr>
-					<li><font color="#FF6347"> 问： </font>我是安卓7.0以上的系统，我安装了证书,开启Https导致部分APP打开提升没有网络了！</li>
+					<li><font color="#FF6347"> 问： </font>我是安卓7.0以上的系统，我安装了证书,开启Https导致部分APP打开提示没有网络了！</li>
 					<li><font color="#1E90FF"> 答： </font>请在【证书管理】中下载0.根证书的zip文件，解压出来放入下面的两个地方。PS 如何放入，如何root之类的话题，请在到专业论坛讨论。</li>
 					<li>/system/etc/security/cacerts&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/system/etc/security/cacerts_google</li>
 					<br><hr>
@@ -877,7 +872,11 @@ function set_version() {
 					<li><font color="#1E90FF"> 答： </font>不是的，kpr是为了更强更多规则而存在的，目前除了软路由几乎无解。梅林设备性能没有达标！</li>			
 					<br><hr>
 					<li><font color="#FF6347"> 问： </font>为什么安装了证书仍然，提示https不安全?</li>
-					<li><font color="#1E90FF"> 答： </font>Windows下面请安装的时候选择安装到&nbsp;&nbsp;[受信任的根证书颁发机构]，MAC IOS设备 请百度下如何信任证书，安卓7.0以上将.0根证书放入指定位置。</li>			
+					<li>Windows下面请安装的时候选择安装到&nbsp;&nbsp;[受信任的根证书颁发机构]</li>			
+					<li>IOS设备，在设置---通用----关于手机里面信任证书</li>
+					<li>MAC, 在 【钥匙串访问】中信任</li>
+					<li>安卓7.0以上将.0根证书复制到【/system/etc/security/cacerts】&nbsp;&nbsp;【/system/etc/security/cacerts_google】中</li>
+					<li>火狐浏览器用户，请分别在火狐内访问110.110.110.110，和使用其他浏览器访问110.110.110.110,并将证书安装到[受信任的根证书颁发机构]</li>
 					<br><hr>
 					<li><font color="#FF6347"> 问： </font>我把kp的证书备份下来了kpr可以导入使用吗？</li>
 					<li><font color="#1E90FF"> 答： </font>可以的，本来就是同源，可以相互导入导出证书来使用减少重复安装证书的过程。</li>			
@@ -962,24 +961,28 @@ function set_version() {
 		$('#kp_rules_pannel').forms([
 			// { title: '绿坝规则状态', text: '<font id="_koolproxyR_rule_status" name=_koolproxyR_status color="#1bbf35">正在获取规则状态...</font>' },
 			{ title: '规则状态', text: '<font id="_koolproxyR_third_rule_status" name=_koolproxyR_status color="#1bbf35">正在获取规则状态...</font>' },	
-			{ title: 'KPR  主规则', multi: [
-				{ name: 'koolproxyR_easylist_rules',type:'checkbox',value: dbus.koolproxyR_easylist_rules == '1', suffix: '<lable id="_kp_easylist">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;此规则由EasylistChina和CJX sAnnoyance 与KPR自定义规则组成，是KPR的首选规则.。</lable>&nbsp;&nbsp;' },
-			]},	
+			// { title: 'KPR  主规则', multi: [
+			// 	{ name: 'koolproxyR_easylist_rules',type:'checkbox',value: dbus.koolproxyR_easylist_rules == '1', suffix: '<lable id="_kp_easylist">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;此规则由EasylistChina和CJX sAnnoyance 与KPR自定义规则组成，是KPR的首选规则.。</lable>&nbsp;&nbsp;' },
+			// ]},	
+			{ title: '主规则', name:'koolproxyR_easylist_rules',type:'select',options:[['1','KoolProxyR主规则'],['2','KoolProxy主规则'],['3','KoolProxy主规则+每日规则'],['4','关闭主规则']],value: dbus.koolproxyR_easylist_rules ||"1",suffix: '<font color="#FF0000">请选择一种你想要的规则</font>' },
+
+
+			// { title: 'Fanboy规则（国外）', multi: [
+			// 	{ name: 'koolproxyR_fanboy_rules',type:'checkbox',value: dbus.koolproxyR_fanboy_rules == '1', suffix: '<lable id="_kp_fanboy">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;此规则由Fanboy发起，针对国外主流令人厌烦的广告过滤。</lable>&nbsp;&nbsp;' }
+			// ]},	
+			// { title: 'Fanboy全规则版本', multi: [
+			// 	{ name: 'koolproxyR_fanboy_all_rules',type:'checkbox',value: dbus.koolproxyR_fanboy_all_rules == '1', suffix: '<lable id="_kp_fanboy_all">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;【开启/关闭选项】--【保存】--【更新规则】就能将fanboy规则更新为最全的版本，低功耗CPU【万万不能开启】！</lable>&nbsp;&nbsp;' }
+			// ]},	
+			{ title: 'Fanboy主规则', name:'koolproxyR_fanboy_rules',type:'select',options:[['1','Fanboy规则（国外）'],['2','Fanboy全规则版本'],['3','关闭Fanboy规则']],value: dbus.koolproxyR_fanboy_rules ||"1",suffix: '<font color="#FF0000">请选择一种你想要的规则</font>' },
 			{ title: '补充规则', multi: [
 			{ name: 'koolproxyR_replenish_rules',type:'checkbox',value: dbus.koolproxyR_replenish_rules == '1', suffix: '<lable id="_kp_replenish_rules">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;此规则由vokins/yhosts整理的hosts包含移动设备和TV规则(建议开启)。</lable>&nbsp;&nbsp;' }
 			]},
 			{ title: '视频规则（加密）', multi: [
-				{ name: 'koolproxyR_video_rules',type:'checkbox',value: dbus.koolproxyR_video_rules == '1', suffix: '<lable id="_kp_abx">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;此规则可以屏蔽国内网站的视频广告，需HTTPS模式。（失效请关闭此项）</lable>&nbsp;&nbsp;' },
-			]},	
-			{ title: 'Fanboy规则（国外）', multi: [
-				{ name: 'koolproxyR_fanboy_rules',type:'checkbox',value: dbus.koolproxyR_fanboy_rules == '1', suffix: '<lable id="_kp_fanboy">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;此规则由Fanboy发起，针对国外主流令人厌烦的广告过滤。</lable>&nbsp;&nbsp;' }
-			]},	
-			{ title: 'Fanboy全规则版本', multi: [
-				{ name: 'koolproxyR_fanboy_all_rules',type:'checkbox',value: dbus.koolproxyR_fanboy_all_rules == '1', suffix: '<lable id="_kp_fanboy_all">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;【开启/关闭选项】--【保存】--【更新规则】就能将fanboy规则更新为最全的版本，低功耗CPU【万万不能开启】！</lable>&nbsp;&nbsp;' }
+				{ name: 'koolproxyR_video_rules',type:'checkbox',value: dbus.koolproxyR_video_rules == '1', suffix: '<lable id="_kp_abx">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;此规则可以屏蔽国内网站的视频广告，需HTTPS模式。</lable>&nbsp;&nbsp;' },
 			]},	
 
 			{ title: '规则更新', multi: [
-				{ name:'koolproxyR_basic_easylist_update',type:'checkbox',value: dbus.koolproxyR_basic_easylist_update == '1', suffix: '<lable id="_koolproxyR_basic_easylist_update_txt">KPR主规则</lable>&nbsp;&nbsp;' },
+				{ name:'koolproxyR_basic_easylist_update',type:'checkbox',value: dbus.koolproxyR_basic_easylist_update == '1', suffix: '<lable id="_koolproxyR_basic_easylist_update_txt">主规则</lable>&nbsp;&nbsp;' },
 				{ name:'koolproxyR_basic_replenish_update',type:'checkbox',value: dbus.koolproxyR_basic_replenish_update == '1', suffix: '<lable id="_koolproxyR_basic_replenish_update_txt">补充规则</lable>&nbsp;&nbsp;' },
 				{ name:'koolproxyR_basic_video_update',type:'checkbox',value: dbus.koolproxyR_basic_video_update == '1', suffix: '<lable id="_koolproxyR_basic_video_update_txt">KP视频规则</lable>&nbsp;&nbsp;' },
 				{ name:'koolproxyR_basic_fanboy_update',type:'checkbox',value: dbus.koolproxyR_basic_fanboy_update == '1', suffix: '<lable id="_koolproxyR_basic_fanboy_update_txt">Fanboy规则</lable>&nbsp;&nbsp;' },
@@ -1007,7 +1010,7 @@ function set_version() {
 <div id="kpr_debug_management" class="section"></div>
 	<script type="text/javascript">
 		$('#kpr_debug_management').forms([
-		{ title: '', suffix: '<button onclick="kpr_debug_0(\'KoolProxyR_debug.sh\', 0);" style="border-radius: 15px" class="btn btn-success">开启全调试模式 </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="kpr_debug_1(\'KoolProxyR_debug.sh\', 1);" style="border-radius: 15px" class="btn btn-success">开启-INFO调试模式 </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="kpr_debug_2(\'KoolProxyR_debug.sh\', 2);" style="border-radius: 15px" class="btn btn-success">开启-AD调试模式 </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="kpr_debug_3(\'KoolProxyR_debug.sh\', 3);" style="border-radius: 15px" class="btn btn-success">开启-WARNING调试模式 </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="kpr_debug_4(\'KoolProxyR_debug.sh\', 4);" style="border-radius: 15px" class="btn btn-success">关闭调试模式</button></lable>' },
+		{ title: '', suffix: '<button onclick="kpr_debug_0(\'KoolProxyR_debug.sh\', 0);" style="border-radius: 15px" class="btn btn-success">规则调试模式 </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="kpr_debug_1(\'KoolProxyR_debug.sh\', 1);" style="border-radius: 15px" class="btn btn-success">开启-INFO调试模式 </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="kpr_debug_2(\'KoolProxyR_debug.sh\', 2);" style="border-radius: 15px" class="btn btn-success">开启-AD调试模式 </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="kpr_debug_3(\'KoolProxyR_debug.sh\', 3);" style="border-radius: 15px" class="btn btn-success">开启-全调试模式 </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="kpr_debug_4(\'KoolProxyR_debug.sh\', 4);" style="border-radius: 15px" class="btn btn-success">关闭调试模式</button></lable>' },
 		]);
 	</script>
 	<br><hr>
@@ -1016,8 +1019,9 @@ function set_version() {
 		<br><hr>
 		<li>这是一个抓包，排错，编写规则的辅助工具，强大之人掌握，必能发挥其威力。</li>
 		<br><hr>
-		<li><font color="green"> 【开启全调试模式】</font></li>
-		<li><font color="red"> 此模式下，任何信息都将显示到日志信息中。</font></li>
+		<li><font color="green"> 【规则调试模式】</font></li>
+		<li><font color="red"> 此模式可以直接使用【WinSCP】等文件管理软件，进行编辑，保存实时生效（仅限/koolshare/koolproxyR/data/rules/user.txt）</font></li>
+		<li><font color="red"> 此模式还可以与其他模式混用，极大的提高效率，先启动（info，ad，全调试）再启动本模式即可。</font></li>
 		<br><hr>
 		<li><font color="green"> 【开启-INFO调试模式】</font></li>
 		<li><font color="red"> 此模式下，只将重要信息显示到日志信息中。</font></li>
@@ -1025,8 +1029,8 @@ function set_version() {
 		<li><font color="green"> 【开启-AD调试模式】</font></li>
 		<li><font color="red"> 此模式下，通常用来排除误杀。</font></li>
 		<br><hr>
-		<li><font color="green"> 【开启-WARNING调试模式 】</font></li>
-		<li><font color="red"> 此模式看看就好，我利用不来。</font></li>
+		<li><font color="green"> 【开启-全调试模式 】</font></li>
+		<li><font color="red"> 更加详细的调试信息，让所有的东西都一览无余。</font></li>
 		<br><hr>
 		<li><font color="green"> 【关闭调试模式 】</font></li>
 		<li><font color="red"> 十分重要的操作，不然一觉起来硬盘爆了。</font></li>

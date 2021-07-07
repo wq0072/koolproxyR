@@ -1,9 +1,9 @@
 #!/bin/sh
 
 MODULE=koolproxyR
-VERSION="2.1.7"
+VERSION="2.8.8"
 TITLE=koolproxyR
-DESCRIPTION="KPR更多规则更舒服！"
+DESCRIPTION="至   善   至   美"
 HOME_URL="Module_koolproxyR.asp"
 CHANGELOG="维护阶段的kpr"
 # 查看内核日志
@@ -13,6 +13,7 @@ find . -type f -exec dos2unix {} \;
 #get latest rules
 rm -rf ./koolproxyR/koolproxyR/data/rules/*.txt
 rm -rf ./koolproxyR/koolproxyR/data/rules/*.md5
+rm -rf ./koolproxyR/koolproxyR/data/rules/*.dat
 rm -rf ./koolproxyR/koolproxyR/data/source.list
 # rm -rf ./koolproxyR/koolproxyR/koolproxy
 cd koolproxyR/koolproxyR/data/rules
@@ -22,16 +23,16 @@ cd koolproxyR/koolproxyR/data/rules
 # 从 https://filterlists.com/ 找规则
 # https://tgc.cloud/downloads/hosts.txt 36万DNS规则，kpr 生产出来是72万
 wget https://easylist-downloads.adblockplus.org/easylistchina.txt
-# https://dev.tencent.com/u/shaoxia1991/p/cjxlist/git/raw/master/cjx-annoyance.txt
-wget https://dev.tencent.com/u/shaoxia1991/p/cjxlist/git/raw/master/cjx-annoyance.txt
+
+wget https://shaoxia1991.coding.net/p/cjxlist/d/cjxlist/git/raw/master/cjx-annoyance.txt
 
 wget https://secure.fanboy.co.nz/fanboy-annoyance.txt
 # ADGUARD-DNS过滤规则
 # wget -O yhosts.txt https://filters.adtidy.org/extension/chromium/filters/15.txt
 # yhosts过滤规则
-# https://dev.tencent.com/u/shaoxia1991/p/yhosts/git/raw/master/data/tvbox.txt
-wget -O yhosts.txt https://dev.tencent.com/u/shaoxia1991/p/yhosts/git/raw/master/hosts
-wget -O tvbox.txt https://dev.tencent.com/u/shaoxia1991/p/yhosts/git/raw/master/data/tvbox.txt
+
+wget -O yhosts.txt https://shaoxia1991.coding.net/p/yhosts/d/yhosts/git/raw/master/hosts
+wget -O tvbox.txt https://shaoxia1991.coding.net/p/yhosts/d/yhosts/git/raw/master/data/tvbox.txt
 cat tvbox.txt >> yhosts.txt
 
 # ad.txt：合并EasylistChina、EasylistLite、CJX'sAnnoyance，以及补充的一些规则；
@@ -53,9 +54,21 @@ cat tvbox.txt >> yhosts.txt
 # 暂时先用临时的替代
 # wget https://kprules.b0.upaiyun.com/kp.dat
 # wget https://kprules.b0.upaiyun.com/user.txt
-# wget https://dev.tencent.com/u/shaoxia1991/p/koolproxyr/git/raw/master/koolproxyR/koolproxyR/data/rules/kp.dat
-# https://dev.tencent.com/u/shaoxia1991/p/koolproxyr/git/raw/master/koolproxyR/koolproxyR/data/rules/user.txt
-wget https://dev.tencent.com/u/shaoxia1991/p/koolproxyr/git/raw/master/koolproxyR/koolproxyR/data/rules/user.txt
+# 同步Kpr视频规则及md5
+# 电脑的wget 不支持houzi- 的- 域名 所以倒腾了下
+wget https://shaoxia1991.coding.net/p/kp_dat/d/kp_dat/git/raw/master/kp.dat
+wget https://shaoxia1991.coding.net/p/kp_dat/d/kp_dat/git/raw/master/kp.dat.md5
+# read -s -n1 -p "请手动拷贝kp.dat 和kp.dat.md5,按任意键继续...."  
+
+video_rules_local=`cat kp.dat.md5 | sed -n '2p'`
+if [[ "$video_rules_local" == "" ]]; then
+    # 当本地md5 没有时间戳的时候就更新更新时间戳
+    video_rules_online=`curl https://shaoxia1991.coding.net/api/user/shaoxia1991/project/kp_dat/depot/kp_dat/git/blob/master%2Fkp.dat | jq '.data.file.lastCommitDate'`
+    date -d @`echo ${video_rules_online:0:10}` +%Y年%m月%d日\ %X >> kp.dat.md5
+fi
+
+
+wget https://shaoxia1991.coding.net/p/koolproxyr/d/koolproxyr/git/raw/master/koolproxyR/koolproxyR/data/rules/user.txt
 
 ## ---------------------------------------------------fanboy处理开始------------------------------------------------------
 ## 删除导致KP崩溃的规则
@@ -106,9 +119,9 @@ sed -i '/instagram.com/d' fanboy-annoyance_https.txt
 sed -i '/\.\*\//d' fanboy-annoyance_https.txt
 
 # 给国内三大电商平台放行
-sed -i '/https:\/\/jd.com/d' fanboy-annoyance_https.txt
-sed -i '/https:\/\/taobao.com/d' fanboy-annoyance_https.txt
-sed -i '/https:\/\/tmall.com/d' fanboy-annoyance_https.txt
+sed -i '/jd.com/d' fanboy-annoyance_https.txt
+sed -i '/taobao.com/d' fanboy-annoyance_https.txt
+sed -i '/tmall.com/d' fanboy-annoyance_https.txt
 
 # 删除不必要信息重新打包 15 表示从第15行开始 $表示结束
 sed -i '15,$d' fanboy-annoyance.txt
@@ -123,6 +136,19 @@ sed -i '/tvbs.com/d' fanboy-annoyance.txt
 sed -i '/googletagmanager.com/d' fanboy-annoyance.txt
 # 给 microsoft.com 放行
 sed -i '/microsoft.com/d' fanboy-annoyance.txt
+
+# 终极 https 卡顿优化 grep -n 显示行号  awk -F 分割数据  sed -i "${del_rule}d" 需要""" 和{}引用变量
+# 当 koolproxyR_del_rule 是1的时候就一直循环，除非 del_rule 变量为空了。
+koolproxyR_del_rule=1
+while [ $koolproxyR_del_rule = 1 ];do
+    del_rule=`cat fanboy-annoyance.txt | grep -n 'https://' | grep '\*' | grep -v '/\*'| grep -v '\^\*' | grep -v '\*\=' | grep -v '\$s\@' | grep -v '\$r\@'| awk -F":" '{print $1}' | sed -n '1p'`
+    if [[ "$del_rule" != "" ]]; then
+        sed -i "${del_rule}d" fanboy-annoyance.txt
+    else
+        koolproxyR_del_rule=0
+    fi
+done	
+
 
 ## -------------------------------------------------------fanboy处理结束------------------------------------------------------
 
@@ -171,19 +197,11 @@ sed -i '/\.\*\//d' easylistchina_https.txt
 # 删除不必要信息重新打包 15 表示从第15行开始 $表示结束
 sed -i '6,$d' easylistchina.txt
 # 合二归一
-# https://dev.tencent.com/u/shaoxia1991/p/koolproxyR_rule_list/git/raw/master/kpr_our_rule.txt
-wget https://dev.tencent.com/u/shaoxia1991/p/koolproxyR_rule_list/git/raw/master/kpr_our_rule.txt
-cat kpr_our_rule.txt >> easylistchina.txt
+
+wget https://shaoxia1991.coding.net/p/koolproxyR_rule_list/d/koolproxyR_rule_list/git/raw/master/kpr_our_rule.txt
+# https://shaoxia1991.coding.net/p/koolproxyR_rule_list/d/koolproxyR_rule_list/git/raw/master/kpr_our_rule.txt
 cat easylistchina_https.txt >> easylistchina.txt
 
-# 把三大视频网站给剔除来，作为单独文件。
-cat easylistchina.txt | grep -i 'youku.com' > kpr_video_list.txt
-cat easylistchina.txt | grep -i 'iqiyi.com' >> kpr_video_list.txt
-cat easylistchina.txt | grep -i 'v.qq.com' >> kpr_video_list.txt
-cat easylistchina.txt | grep -i 'g.alicdn.com' >> kpr_video_list.txt
-cat easylistchina.txt | grep -i 'tudou.com' >> kpr_video_list.txt
-cat easylistchina.txt | grep -i 'gtimg.cn' >> kpr_video_list.txt
-cat easylistchina.txt | grep -i 'l.qq.com' >> kpr_video_list.txt
 # 给三大视频网站放行 由kp.dat负责
 sed -i '/youku.com/d' easylistchina.txt
 sed -i '/iqiyi.com/d' easylistchina.txt
@@ -195,9 +213,9 @@ sed -i '/qq.com/d' easylistchina.txt
 # 删除可能导致kpr卡死的神奇规则
 sed -i '/https:\/\/\*/d' easylistchina.txt
 # 给国内三大电商平台放行
-sed -i '/https:\/\/jd.com/d' easylistchina.txt
-sed -i '/https:\/\/taobao.com/d' easylistchina.txt
-sed -i '/https:\/\/tmall.com/d' easylistchina.txt
+sed -i '/jd.com/d' easylistchina.txt
+sed -i '/taobao.com/d' easylistchina.txt
+sed -i '/tmall.com/d' easylistchina.txt
 # 给 tvbs.com 放行
 sed -i '/tvbs.com/d' easylistchina.txt
 sed -i '/googletagmanager.com/d' easylistchina.txt
@@ -208,6 +226,19 @@ sed -i '/microsoft.com/d' easylistchina.txt
 # 给apple的https放行
 sed -i '/apple.com/d' easylistchina.txt
 sed -i '/mzstatic.com/d' easylistchina.txt
+
+# 终极 https 卡顿优化 grep -n 显示行号  awk -F 分割数据  sed -i "${del_rule}d" 需要""" 和{}引用变量
+# 当 koolproxyR_del_rule 是1的时候就一直循环，除非 del_rule 变量为空了。
+koolproxyR_del_rule=1
+while [ $koolproxyR_del_rule = 1 ];do
+    del_rule=`cat easylistchina.txt | grep -n 'https://' | grep '\*' | grep -v '/\*'| grep -v '\^\*' | grep -v '\*\=' | grep -v '\$s\@' | grep -v '\$r\@'| awk -F":" '{print $1}' | sed -n '1p'`
+    if [[ "$del_rule" != "" ]]; then
+        sed -i "${del_rule}d" easylistchina.txt
+    else
+        koolproxyR_del_rule=0
+    fi
+done	
+cat kpr_our_rule.txt >> easylistchina.txt
 
 
 
@@ -227,9 +258,9 @@ sed -i 's/^127.0.0.1\ /||http:\/\//g' yhosts_https.txt
 # 处理tvbox.txt本身规则。
 sed -i 's/^127.0.0.1\ /||/g' tvbox.txt
 # 给国内三大电商平台放行
-sed -i '/https:\/\/jd.com/d' yhosts_https.txt
-sed -i '/https:\/\/taobao.com/d' yhosts_https.txt
-sed -i '/https:\/\/tmall.com/d' yhosts_https.txt
+sed -i '/jd.com/d' yhosts_https.txt
+sed -i '/taobao.com/d' yhosts_https.txt
+sed -i '/tmall.com/d' yhosts_https.txt
 
 # 合二归一
 cat yhosts_https.txt > yhosts.txt
@@ -237,6 +268,18 @@ cat tvbox.txt >> yhosts.txt
 # 此处对yhosts进行单独处理
 sed -i 's/^@/!/g' yhosts.txt
 sed -i 's/^#/!/g' yhosts.txt
+sed -i '/localhost/d' yhosts.txt
+sed -i '/broadcasthost/d' yhosts.txt
+sed -i '/broadcasthost/d' yhosts.txt
+sed -i '/cn.bing.com/d' yhosts.txt
+
+
+# 给三大视频网站放行 由kp.dat负责
+sed -i '/youku.com/d' yhosts.txt
+sed -i '/iqiyi.com/d' yhosts.txt
+sed -i '/g.alicdn.com/d' yhosts.txt
+sed -i '/tudou.com/d' yhosts.txt
+sed -i '/gtimg.cn/d' yhosts.txt
 
 
 # 给知乎放行
@@ -267,6 +310,17 @@ sed -i '/netflix.com/d' yhosts.txt
 # 给 microsoft.com 放行
 sed -i '/microsoft.com/d' yhosts.txt
 
+# 终极 https 卡顿优化 grep -n 显示行号  awk -F 分割数据  sed -i "${del_rule}d" 需要""" 和{}引用变量
+# 当 koolproxyR_del_rule 是1的时候就一直循环，除非 del_rule 变量为空了。
+koolproxyR_del_rule=1
+while [ $koolproxyR_del_rule = 1 ];do
+    del_rule=`cat yhosts.txt | grep -n 'https://' | grep '\*' | grep -v '/\*'| grep -v '\^\*' | grep -v '\*\=' | grep -v '\$s\@' | grep -v '\$r\@'| awk -F":" '{print $1}' | sed -n '1p'`
+    if [[ "$del_rule" != "" ]]; then
+        sed -i "${del_rule}d" yhosts.txt
+    else
+        koolproxyR_del_rule=0
+    fi
+done	
 
 
 
@@ -282,7 +336,10 @@ rm tvbox.txt
 # split -l 1 yhosts.txt chengfeng_
 # ls|grep chengfeng_|xargs -n1 -i{} mv {} {}.txt
 
+
 cd ..
+
+cp -rf ../../../koolproxy/* ./rules
 find -name *.txt |sed 's#.*/##' > source.list
 
 # find -name chengfeng* |sed 's#.*/##' >> source.list
@@ -303,28 +360,40 @@ echo "0|kp.dat|0|0" >> source.list
 # @@*$stylesheet
 
 cd ..
+# 现在在\koolproxyR\koolproxyR\koolproxyR
 # wget https://raw.githubusercontent.com/koolshare/ledesoft/master/koolproxy/koolproxy/koolproxy/koolproxy
 cd ../..
-# Check and include base
-DIR="$( cd "$( dirname "$BASH_SOURCE[0]" )" && pwd )"
+# 现在在 Y:\koolproxyR 也就是主目录
+# # Check and include base
+# DIR="$( cd "$( dirname "$BASH_SOURCE[0]" )" && pwd )"
 
-# now include build_base.sh
-. $DIR/../softcenter/build_base.sh
+# # now include build_base.sh
+# . $DIR/../softcenter/build_base.sh
 
-# change to module directory
-cd $DIR
+# # change to module directory
+# cd $DIR
 
-# do something here
+# # do something here
 
+# 
+
+
+do_build_result() {
+    rm -f koolproxyR.tar.gz
+    tar -zcvf koolproxyR.tar.gz koolproxyR
+    md5value=`md5sum koolproxyR.tar.gz | cut -d \  -f1`
+    echo "$VERSION" > version
+    echo "$md5value" >> version
+}
 do_build_result
 
-sh backup.sh $MODULE
+
+sh backup.sh koolproxyR
 cd koolproxyR/koolproxyR/data/rules
 # ls | grep .txt | sed 's/^/md5sum /g' | >> rules_md5.sh
 md5sum easylistchina.txt|awk '{print $1}' > easylistchina.txt.md5
-md5sum kp.dat|awk '{print $1}' > kp.dat.md5
+# md5sum kp.dat|awk '{print $1}' > kp.dat.md5
 md5sum user.txt|awk '{print $1}' > user.txt.md5
 md5sum fanboy-annoyance.txt|awk '{print $1}' > fanboy-annoyance.txt.md5
-md5sum kpr_video_list.txt|awk '{print $1}' > kpr_video_list.txt.md5
 md5sum yhosts.txt|awk '{print $1}' > yhosts.txt.md5
 
